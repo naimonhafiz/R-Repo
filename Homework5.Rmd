@@ -1,0 +1,301 @@
+---
+title: "Homework5"
+author: "Naimon Hafiz"
+date: "March 3, 2019"
+output:
+  word_document: default
+  html_document: default
+---
+
+```{r hw5, include=TRUE}
+##1(a) Reproducing Figure 1
+
+attach(cars) 
+require(stats)
+plot(dist ~ speed, data=cars,ylim=c(0,130),pch=20,cex=1.9, col="blue",
+        main ="Scatterplot of speed versus Distance",
+       sub="Using plot() in R", xlab="Speed(miles per Hour)",
+       ylab="Stopping Distance(feet)",
+      col.axis="magenta",col.main="red",
+     font.main=1.5,font.lab=1.5,col.lab="darkgreen")
+##plotting dist and speed with a tittle, Subtitle color
+##formate and front size of text
+
+##1(b) Reproducing Figure @
+plot(dist ~ speed, data=cars,ylim=c(0,130),xlim=c(0,25),
+          pch=20,cex=1.9,col="blue",
+          main ="Scatterplot of speed versus Distance",
+          sub="Using plot() in R", xlab="Speed", ylab="dist",
+          col.axis="magenta",col.main="red",
+     font.main=1.5,font.lab=1.5,col.lab="darkgreen",
+     axes=FALSE) ## turning off the axes of the Figure 1 
+
+
+abline(lm(dist ~ speed,data=cars))##drawing a line of best fit
+
+##grid
+plot(dist ~ speed, data=cars,ylim=c(0,130),xlim=c(0,25),
+     pch=20, col="blue",
+     main ="Scatterplot of speed versus Distance",
+     sub="Using plot() in R", xlab="Speed", ylab="dist",
+     col.axis="magenta",col.main="red",font.main=1.5,font.lab=1.5,
+     col.lab="darkgreen")
+
+     box(col="red",lwd=3,lty=3)
+     legend("topleft",inset=0.01,title="Distance vs Speed",
+     legend=c("Observation"),col=c("blue"),pch=19, horiz=TRUE)
+grid()
+
+##adding grid, and box and legend and fixing some front and size of the text
+
+     
+
+
+##2(a) 
+data(iris)
+attach(iris)
+
+summary(Sepal.Length) ##summary of Sepal.length
+
+summary(Sepal.Width) ##summary of Sepal.Width
+
+summary(Petal.Length) ##summary of Petal.length
+
+summary(Petal.Width) ##summary of Petal.length
+
+ 
+ 
+##2(b) Reproducing  figure 3
+library(ggplot2) 
+
+
+a<-ggplot(data = iris, aes(Petal.Length, Petal.Width)) 
+## gg plot of variable Petal.Length and Petal.Width 
+  
+
+a+geom_point(aes(color = Species, shape = Species),size=3) + 
+  geom_smooth(method = "lm") +
+  xlab("Petal Length (cm)") + ylab("Petal Width (cm)" )
+
+## drawing a geom point with some color and shape and a best fit smooth line
+## and addind some axis title
+ 
+
+## Reproducing Figure 4
+a<-ggplot(data = iris, aes(Petal.Length, Petal.Width)) 
+
+ab<-a+geom_point(aes(color = Species, shape = Species),size=3)+
+    geom_smooth(method = "lm")+ggtitle("Panel Length Versus Width")+
+    xlab("Petal Length (cm)") +
+    ylab("Petal Width (cm)" )+
+    
+    theme(plot.title = element_text(size = 15, face = "bold" , hjust=.5),   
+          axis.text = element_text(size=12, face="bold"), 
+          axis.title = element_text(size=15, face="bold"),
+          
+         panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+         panel.background = element_blank(),
+         axis.line = element_line("darkblue", size = 1, linetype = "solid"),     
+         text = element_text(face="bold"),legend.position = "none",
+        panel.border = element_rect(colour="darkblue",
+                                    fill="NA",size = 2, linetype = "solid"))
+  ##Added some theme with figure 1. Changed the text shape, size, panel background
+  ## color, legend posistion, panel border.
+  
+  ab+facet_grid(Species ~ .)## Added facet
+
+## Reproducing figure 5
+  
+a<-ggplot(data = iris, aes(Petal.Length, Petal.Width)) 
+  
+  
+ab<-a+geom_point(aes(color = Species, shape = Species),size=3)+
+    geom_smooth(method = "lm")+ggtitle("Panel Length Versus Width")+
+    xlab("Petal Length (cm)") +
+    ylab("Petal Width (cm)" )+
+    
+theme(plot.title = element_text(size = 15, face = "bold" , hjust=.5),   
+          axis.text = element_text(size=12, face="bold"), 
+          axis.title = element_text(size=15, face="bold"),
+          panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+          panel.background = element_blank(),
+          axis.line = element_line("darkblue", size = 1, linetype = "solid"),     
+          text = element_text(face="bold"),legend.position = "none",
+          panel.border = element_rect(colour="darkblue", 
+                                      fill="NA",size = 2, linetype = "solid"))
+ab+facet_grid(. ~ Species)
+## changed the facet to reproduce figure 5
+  
+
+##figure 6
+  library(plyr)
+  library(ggplot2)
+  
+  data(iris)
+  vert.line<-ddply(iris, .(Species), function(sp) {mean(sp$Petal.Length)})
+ p<- ggplot(data = iris, aes(Petal.Length))
+ 
+ ## ggplot of data Patel.Length
+  
+ bp<- p+geom_histogram() +
+    geom_vline(data = vert.line, aes(xintercept = V1, color = Species)) +
+   ## Adding a verticle line in histogram
+    ggtitle("Histogram of Petal Length by Species")+ ylab("count")+
+   
+    theme(plot.title = element_text(size = 15, face = "bold" , hjust=.5),   
+          axis.text = element_text(size=12, face="bold"), 
+          axis.title = element_text(size=15, face="bold"),
+          panel.grid.major = element_blank(),panel.grid.minor = element_blank(),
+          panel.background = element_blank(),
+          axis.line = element_line("darkblue", size = 1, linetype = "solid"),     
+          text = element_text(face="bold"),legend.position = "none",
+          panel.border = element_rect(colour="darkblue", 
+                                      fill="NA",size = 2, linetype = "solid"))
+        bp+facet_grid(. ~ Species)
+        ##Changed the facet to reproduce figure 6
+    
+  
+##Reproducing Figure 7
+p<- ggplot(data = iris, aes(Petal.Length))
+        
+        
+bp<- p+geom_histogram() +
+          geom_vline(data = vert.line, aes(xintercept = V1, color = Species)) +
+          ggtitle("Histogram of Petal Length by Species")+ ylab("count")+
+          
+  theme(plot.title = element_text(size = 15, face = "bold" , hjust=.5),   
+                axis.text = element_text(size=12, face="bold"), 
+                axis.title = element_text(size=15, face="bold"),
+                panel.grid.major = element_blank(),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank(),
+                axis.line = element_line("darkblue", size = 1,
+                                         linetype = "solid"),     
+                text = element_text(face="bold"),legend.position = "none",
+                panel.border = element_rect(colour="darkblue",
+                                          fill="NA",size = 2, linetype = "solid"))
+        bp+facet_grid(Species ~ .)
+        
+    ##Chaned the facet to reproduce figure
+        
+  
+##2(d)Producing Boxplot of Sepal length by Species
+         
+  boxplot(Sepal.Length ~ Species, boxwex=0.5 , 
+          main ="Boxplot of Sepal.Length vs Species",
+          sub="Using plot() in R", xlab="Species",
+          ylab="Sepal length(cm)",
+          col.axis="magenta",col.main="red",
+          font.main=1.5,font.lab=1.5,col.lab="darkgreen")
+  ##Added boxwex, axis title, color and font with  a box plot
+
+
+        
+#3.Reproducing figure 8:ggplot of unemployment and time series
+data(economics)
+ggplot(data =economics, aes(date,unemploy))+geom_line()
+
+##4(a)
+##install.packages("Hmisc",dep=TRUE) 
+#install.packages("MASS")
+str(survey)
+
+describe(survey)
+
+summary(survey)
+
+#codebook(survey)
+## Stucture, describe ,summary and codebook of survey dataset
+
+##4(b)
+attach(survey) 
+#install.packages("vcd")
+#install.packages("epiDisplay")
+
+mytable<-table(Sex, Exer, Smoke)
+ftable(mytable)## table of SEx Exer and Smoke
+
+prop.table(table(Sex, Exer, Smoke)) ##Prop.Table
+
+tab1(table(Sex, Exer, Smoke))# tab1
+
+##tappct
+tabpct(Sex,Sex,decimal=1)
+tabpct(Exer,Exer,decimal=1)
+tabpct(Smoke,Smoke,decimal=1)
+
+##4(c) Contingency table nad Chisq test
+Smoke.sex<-table(Smoke,Sex)
+smoke.exer<-table(Smoke, Exer)
+sex.exer<-table(Sex,Exer)
+
+chisq.test(Smoke.sex)## chisquare test
+chisq.test(sex.exer)
+chisq.test(smoke.exer)
+##I think the chisquare test of sex.exer is the most significant out 
+##of three and has p value of close to .05. 
+
+
+##4(d)
+data("survey")
+ff <- lm(Height ~ Wr.Hnd, data = survey)
+summary(ff) 
+# calculation of Pearson's correlation coefficient
+cor(survey$Wr.Hnd, survey$Height, use = "complete")  
+
+
+#Here r=.600 which means the pearson correlation and coefficient of Height and 
+## Wr.Hnd has moderately strong  positive relationship where r=60%
+##
+
+library(psych)
+dat0 <- survey[, c("Pulse", "Age", "Height","NW.Hnd", "Wr.Hnd")] 
+pairs.panels(dat0)
+##NW,Hnd and WR.HND are highly correlated with pearson correlation coeff.=.95
+
+#5(a)##Summary Statistics
+tapply(Pulse,Exer,summary,sd)
+
+aggregate(Pulse,by=list(Exer), FUN=c("mean","sd"))
+
+summ(Pulse, by=Exer)
+
+##summary statistic: People Who do not do any exercise their standard deviation of
+## Pulse rate is higher than those who do exercise frequently or somtime.
+
+#5(b)
+##install.packages("MASS")
+data(survey)
+ff <- aov(survey$Pulse ~ survey$Exer) ##analysis of variance
+summary(ff)
+
+#5(c)
+TukeyHSD(ff)##we can see that p adj of some-Freq here is significant
+##which is less that .05.
+confint(ff) #Confidence interval
+
+lm(survey$Pulse ~ survey$Exer)
+
+##6(a)
+data("VADeaths") ##Loading VADeaths
+print("VADeaths")
+
+##6(b)
+##Reproducing figure 10(a)
+
+par(family = "times", font = 1, font.lab = 1, font.axis = 2)
+barplot(VADeaths, beside = TRUE, legend = TRUE,
+        main="Death rates in Virginia", sub="(a) bar chart" ,
+        ylab="Deaths per 1000", args.legend = list(x = "topright", bty = "n", inset=c(0.1, -.1)))
+                                      
+
+####Reproducing figure 10(b)
+dotchart(VADeaths, xlim = c(0, 75), cex=.7,
+         main="Death rates in Virginia", sub="(b)dotchart" ,
+         xlab="Deaths per 1000") 
+
+
+
+
+```
+
