@@ -1,0 +1,177 @@
+---
+title: "HW7"
+author: "Naimon Hafiz"
+date: "March 17, 2019"
+output: html_document
+---
+
+```{r}
+#introduction:The director of admissions of a small college selected 100 studentsat
+#random from the new freshman class in a study to determine whether a student's 
+#grade point average (GPA) at the end of the freshman year (Y) can be predicted
+#from the ACT test score (X).
+#Referce:"Applied liner Statistical Model" By Kutner, Michael.
+
+#Primary Analysis:
+#1.Determine wether there is liner relationship Between ACT Score and GPA.
+#2.Determine the least squares estimates of Beta_zero and Beta_1, 
+#and state the estimated regression function.
+#3.What is the point estimate of the change in the mean response when the 
+#entrance test score increases by one point.
+#4. Analysis of vaiance
+#5. Diagnosis of perdictor variables and residuals
+
+#Secondary Analysis:
+#Most of the time the student having higher Act Score dont end up having higher 
+#GPP so the director of admissions of a small college selected 100 student 
+#randomly check wether thats really true or not.;
+
+
+
+#X = ACT SCORE
+#Y = cGPA
+
+
+
+# Clean up
+rm(list=ls())
+
+
+# Load data in to R
+
+CH01PR19 <- read.table("HW7Data1.txt", sep = " ",header = F,
+                       nrows = 100, na.strings ="", stringsAsFactors= F)
+
+# View and clean the data
+View(CH01PR19)
+names(CH01PR19) <- c("Y","X")
+attach(CH01PR19)
+Y
+X
+# Plot to make sure a linear relationship makes sense
+plot(Y~X, xlab = "ACT test score", ylab ="GPA(at the end of freshman year", pch = 16,
+     main = "Scatterplot of ACT score and GPA")
+m1 <- lm(Y~X)
+abline(m1)
+m1
+
+# Here Beta_zero=2.35377
+#Beta_zero= 0.03017
+
+#regression Equaton-Y=2.35377+.03017X 
+
+
+require(Hmisc)
+# Pearson's Correlation Coefficient
+rcorr(X,Y)
+
+#the pearson's correlation and coefficient is 22% which is little low.
+
+# Diagnostics for X
+summary(X)
+
+
+require(lattice)
+X.f <- as.factor(findInterval(X, c(15, 20, 25, 30)))
+c <- c(rep(NA,length(X.f)))
+c[X.f==1] <- "red"
+c[X.f==2] <- "purple"
+c[X.f==3] <- "blue"
+c[X.f==4] <- "darkgreen"
+
+# Diagnostics for X
+
+dotchart(X,main="ACT SCORE AND GPA",color=c,pch=16,
+         xlab="ACT test score",xlim=c(10,50))
+
+#from the dot plot we cn see that there is no significant 
+#high and low value of x
+
+boxplot(X, main = "Boxplot of ACT SCORE", xlab="ACT SCORE", horizontal = T)
+X.stats <- boxplot(X)$stats
+
+#The box plot shows the minimum and maximum value.
+#they are fairly symmetrically distributed because the median is
+#located in the middle of the central box.
+
+stem(X)
+
+counts <- table(X)
+barplot(counts, xlab = "ACT SCORE", ylab = "Count", main = "Barchart of ACT SCORE")
+
+#bar plot also looks good.
+
+# Residual Analysis
+Y.hat <- predict(m1,data.frame(X))
+e <- Y - Y.hat # Definition of e
+SE.e <- summary(m1)$sigma # Square root of MSE
+plot(e~X,pch=16)
+
+#The residual plot against X fall within a horizontal band centered
+#around 0, displaying no systematic tendencies to be positive and negative.
+#the residual plot against X looks good.
+
+e.star <- (e - mean(e))/SE.e # Hand Calculation of "semistudentized residuals" from p. 103
+points(e.star~X,col="red")
+#semistudentized residual plot
+
+m1.resid <- residuals(m1)
+points(m1.resid~X, col = "green") # Same as hand calculation
+
+# Checking normality of the error terms
+qqnorm(residuals(m1), main = "Normal Probability Plot of Residuals")
+qqline(residuals(m1))
+
+#The qq plot of residual looks normal but has little skewness in head and tail
+
+hist(residuals(m1));
+
+##The box plot of residual with a line in the middle of the box.
+boxplot(residuals(m1))
+
+
+#Breusch-Pagan Test
+# Tests H0: sigma^2 is a function of X 
+# versus H1: sigma^2 is not a function of X
+require(car)
+ncvTest(m1)
+ #Here P value is greater than .05 so we fail to reject the null and
+#conclude the presence of homoskedasticity
+
+
+
+summary(m1)
+
+#Hypothesis:null: Bo=B1=0
+#alternative: None of them equal zero
+
+##Here the P value  of intercept and Beta1 are both less than .05 so we 
+#conclude that both of the estimates and also overall the model is significant.
+
+
+datap <- data.frame(cbind( X , Y))
+
+sd(datap$X)## 4.34998
+sd(datap$Y)## .4465663
+
+#t test
+##hypothesis:
+#null:  Beta1=0 (no liner realation exist between X & Y)
+#Alternative: Beta1 not equl 0
+#  (liner realation exist between X & Y)
+
+
+
+
+t.test(X, Y, alternative = "two.sided", var.equal = FALSE)
+
+##the p is very lower than .05 so we reject the null and conclude that GPA does not
+## depend on ACT score and there is a liner relationship exist between ACT 
+#score and GPA
+ 
+# At 95 percent confidence interval Beta1 fall between 20.66 and 22.40.
+
+
+
+
+```
