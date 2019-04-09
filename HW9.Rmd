@@ -1,0 +1,557 @@
+---
+title: "HW9"
+author: "Naimon Hafiz"
+date: "April 7, 2019"
+output:
+  word_document: default
+  html_document: default
+  pdf_document: default
+---
+
+```{r }
+
+suppressWarnings
+
+
+Senic <- read.table("C:/Users/naimo/Desktop/823 spring/data/data/SENIC.txt")
+# View and clean the data
+View(Senic)
+names(Senic) <- c("ID","Y","P1","X1","P3","X2","P5","P6","P7","P8","P9","X3")
+attach(Senic)
+summary(Senic)
+hist(Senic$Y) #very little skewness in right
+hist(Senic$X1) #looks good.
+hist(Senic$X2) # its almost normal
+hist(Senic$X3) # it looks good
+
+
+
+#1.
+plot(Y~X1, xlab = "Infection risk", ylab ="length of stay", pch = 16,
+     main = "Scatterplot of risk and stay")
+md1<- lm(Y~X1)#Y=length of stay X1=Infection risk
+
+md1s<-summary(md1)
+md1s
+#significant model and the model estimates are also individually significant
+
+#regression model 1
+#Y=6.3368+.7604*Infection risk
+
+names(md1s)
+abline(md1)
+
+plot(fitted(md1),residuals(md1))#redidual vs Fiited
+abline(h=0)
+names(md1)
+# The relationship between length of stay and infection risk looks linear
+# with both of the significant estimates and overall significant model.The
+# residuals are clustered above and below the line. Though there are 2 points
+# in the residuals plot,that are little far from the cluster. We will diagnose more
+# on that later.
+
+
+
+#model 2
+plot(Y~X2, xlab = "routine chest x-ray", ylab ="length of stay", pch = 16,
+     main = "Scatterplot of x-ray and stay")
+md2<- lm(Y~X2)
+md2s<-summary(md2)
+md2s
+#regression model 2
+#Y=6.566373+0.037756*routine chest x-ray
+abline(md2)
+
+plot(fitted(md2),residuals(md2))#redidual vs Fiited
+abline(h=0)
+#The relationship between length of stay and routine chest X-ray looks linear
+#with both of the significant estimates and overall significant model.The 
+#residuals are clustered above and below the line in the residual plot. Though
+#there are 3 points from the residuals plot,that are little far from the 
+#crowd. We will diagnose more
+#on that later.But Overall it looks linear.
+
+
+#model 3
+plot(Y~X3, xlab = "available facilities", ylab ="length of stay", pch = 16,
+     main = "Scatterplot of facilities and stay")
+md3<- lm(Y~X3)
+md3s<-summary(md3)
+md3s
+
+#regression model 3
+#Y=7.71877+0.04471*available facilities
+abline(md3)
+
+plot(fitted(md3),residuals(md3))#redidual vs Fiited
+abline(h=0)
+
+
+#The relationship between length of stay and available facilities looks linear
+#with both of the significant estimates and overall significant model and also 
+#residuals are clustered above and below the line. Though there are 2 points
+#from the residuals plot,that are little far from the cluster. We will diagnose more
+#on that later.But Overall it looks linear.
+
+
+#2.
+#mse,R_square and sigma 
+
+
+library(Metrics)
+mse(Senic$Y,predict(md1,Senic)) #mse of model1 is  2.590837
+mse(Senic$Y,predict(md2,Senic)) #mse of model1 is 3.091558
+mse(Senic$Y,predict(md3,Senic))#mse of model1 is 3.163568
+
+#infection risk  from model 1 leads to smallest unexplained error variation.
+
+
+#R_square
+R1<-md1s$r.squared #.2845623
+R2<-md2s$r.squared #.1462924
+R3<-md3s$r.squared #.1264072
+
+#The infection risk predictor varibale has highest R-square(28%) which is the
+#R-square of model 1 .
+
+#Variablity or sigma
+S1<-md1s$sigma #1.624044
+S2<-md2s$sigma #1.774052
+S3<-md3s$sigma #1.794595
+
+#The infection risk accounts for the largest reduction
+#in variability or smallest sigma of the average length of stay.
+
+
+#3. Model Diagnostic
+md1s$residuals #model 1 residuals
+md2s$residuals #model 2 residuals
+md3s$residuals #model 3 residuals
+
+#the assumption of variance
+
+plot(fitted(md1),residuals(md1))
+abline(h=0)
+#From the residuals plot, we see that the random noise are clustered above and
+#below except 2 points and most of them are symetry.
+
+plot(fitted(md1),abs(residuals(md1)))
+
+#Formal test of nonconstant variance
+
+#null-constant error variance exists
+#alternavtive-Constant error variance does not exist
+
+require(car)
+ncvTest(md1) #model 1
+ncvTest(md2) #model 2
+ncvTest(md3) #model 3
+##model.1- Here the p value of ncvtest is lower than .05. So we reject the null
+#and conclude that the variance of Y is not same(constant) regardless the values of 
+#predictors for model 1.
+
+#model.2-Here the p value of ncvtest is lower than .05. So we reject the null
+#and conclude that the variance of Y is not same(constant) regardless the values of 
+#predictors for model 2.
+
+#model.3-Here the p value of ncvtest is lower than .05. So we reject the null
+#and conclude that the variance of Y is not  same(constant) regardless the values of 
+#predictors for model 3.
+
+#another test of nonconstant variance is-
+
+summary(lm(abs(residuals(md1))~fitted(md1))) #model 1
+##Here null hypothesis is, the slope is close to zero and the p value of slope
+#is lower than .05  so we reject the null that its actually 0 and conclude 
+#that the slope is not close to 0. so the assumption of constant variance is 
+#not met for model 1.
+
+summary(lm(abs(residuals(md2))~fitted(md2))) #model 2
+##Here null hypothesis is, the slope is close to zero and the p value
+#of slope is lower than .05  so we  reject the null that its actually 0 and 
+#conclude that the slope
+#is not 0. so the assumption of constant variance is not met for model 2.
+
+summary(lm(abs(residuals(md3))~fitted(md3))) #model 3
+##Here null hypothesis is, the slope is close to zero and the p value of slope
+#is lower than .05 so we reject the null that its actually 0 and conclude that
+#the slope is not 0. so the assumption of constant variance is not  met for 
+#model 3.
+
+
+##Check the assumption of normality
+
+qqnorm(residuals(md1),main="QQ plot")#model 1
+qqline(residuals(md1))
+
+#The qq plot looks normal except 2 outlier.They are little far from the
+#qqline for model 1
+
+qqnorm(residuals(md2),main="QQ plot") # model 2
+qqline(residuals(md2))
+
+#The qq plot of model 2 has also some point far from qqline
+
+qqnorm(residuals(md3),main="QQ plot") #model 3
+qqline(residuals(md3))
+
+#The tail of model 3 qq plot has deviated little from its qq line. 
+
+
+#Formal test of normality
+
+#null-normal
+#alternative-not normal
+
+shapiro.test(residuals(md1)) #model 1
+#From the output, the p-value < 0.05 so we reject the null and
+#conclude that the distribution  of the data are not normally distributed
+#for model 1. 
+
+shapiro.test(residuals(md2)) #model 2
+
+#From the output, the p-value < 0.05 so we reject the null and
+#conclude that the distribution  of the data are not normally distributed
+#for model 2.
+
+shapiro.test(residuals(md3)) #model 3
+#From the output, the p-value < 0.05 so we reject the null and
+#conclude that the distribution  of the data are not normally distributed
+#for model 3.
+
+
+##Check the assumption of error correlation
+plot(residuals(md1))
+abline(h=0)
+#Most of the residuals are clustered around 0 except 2 points.
+
+#Formal Durbin-Watson test of autocorrelation
+## null-there is no auto-Correlation among residuals,they are independent
+#alter-there is auto-correlation among residuals
+library(lmtest)
+dwtest(md1) #model 1
+
+#Here p value is greater than .05 and DW is close to 2 so we fail to reject
+#the null and conclude that there is no autocorrelation for model 1.
+
+dwtest(md2) #model 2
+#Here p value is greater than .05 and DW is close to 2 so we fail to reject
+#the null and conclude that there is no autocorrelation for model 2.
+
+dwtest(md3) #model 3
+#Here p value is greater than .05 and DW is close to 2 so we fail to reject
+#the null and conclude that there is no autocorrelation for model 2.
+
+#So The Three model has not met constant variance and normality assumption.
+#They only met auto-correlation assumption.
+
+
+
+#We will diagnosis some outliers and influential point now
+outlierTest(md1)
+outlierTest(md2)
+outlierTest(md3)
+
+# we have indentified all of the three models are have same outliers which are
+#cases 47 and 112.
+
+cutoff <- 4/((nrow(mtcars)-length(md1$coefficients)-2)) 
+#influence point for model 1
+plot(md1, which=4, cook.levels=cutoff)
+
+# Influence Plot 
+influencePlot(md1, id.method="identify", main="Influence Plot",
+              sub="Circle size is proportial to Cook's Distance" )
+
+#We also saw some influential point.
+
+
+
+#4
+md1.sub<-lm(Y~X1,subset=-c(47,112))
+summary(md1.sub)
+#We will check the normality and error constant variance of model 1 after
+# deleting the cases of 47 and 112 to check whether the assumptions have been met 
+#or not
+
+
+
+
+#checcking the assumptions of Regression for model 1 with infection risk
+
+#Formal test of nonconstant variance
+
+#null-constant error variance exists
+#alternavtive-Constant variance does not exist
+
+require(car)
+ncvTest(md1.sub)
+
+#model.1- Here the p value of ncvtest is bigger than .05. So we fail to
+#reject the null and conclude that the variance
+# of Y is same(constant) regardless the values of 
+#predictors for model md1.sub.
+
+#Formal test of normality
+
+#null-normal
+#alternative-not normal
+
+shapiro.test(residuals(md1.sub))
+#From the output, the p-value > 0.05 so we fail to reject the null and
+#conclude that the distribution  of the data are  normally distributed
+#for model 1 md1.sub. 
+
+#So all the assumptions of regression have been met after deleting the 
+#cases of 47 and 112 for model 1.
+
+
+
+#prediction Interval
+
+newdata<-data.frame(X1=6.5,5.9)
+predict(md1.sub,newdata,interval="predict")
+
+#when X1=6.5 Y=6.3368+.7604*6.5=11.2794
+#when X1=5.9 Y=6.3368+.7604*5.9=10.82316
+#Prediction Interval 8.318631<Y< 13.30654
+
+#So the observed values(19.56,17.94) do not fall into the bound of the respective prediction
+#interval
+#A prediction interval is a range of values that is likely to contain the value
+#of a single new observation given specified settings of the predictors. 
+#For example, for a 95% prediction interval of [X1=6.5 and X1=5.9],
+#We can be 95% confident that the observed value of Y will fall within
+#this 8.318631<Y< 13.30654  range.So the observed and predicted did not match
+#So have deleted those 2 cases to get a better fit.
+
+
+
+#5.
+
+Senred<- Senic[-c(47,112),] #dataset with out cases 47 and 112
+Senred
+summary(Senred)
+library(leaps)
+attach(Senred)
+
+b<- regsubsets(Y~X1+X2+X3, data=Senred) # variable selection
+regs<-summary(b)
+regs
+names(regs)
+regs$outmat
+
+regs$adjr2
+
+regs$bic
+
+regs$cp
+
+#Based on adjusted R-square,bic and cp, the model with all of the three predictor
+#variables look much better than the other alternative.
+
+
+#the final model
+final<-lm(Y~X1+X2+X3)
+sumfinal<-summary(final)
+sumfinal
+
+
+#regression model
+#length of stay=5.652345+0.433611*infection risk+0.014248*routineChest Xray
+#                        +0.018656*available hospital facilities
+
+
+#all of the predictor variables from final model look significant with
+# value less than .05 and Adj R-square 34%
+
+
+
+#6. 
+#multicolinearity between predictors-
+
+vif(final)
+
+#We can detect multicolinearity from variance influence factor. If vif is between
+#1 to 4 then there is no multicolinearity. If vif is more than 5 then 
+#there is some problem with multicolinearity. From my output of my
+#final model we can see the Vif of X1 is 1.472803, X2 is 1.247435
+#and X3 is 1.202794. So there is no multicollinearity between
+#predictors.
+
+
+#Outliers and influential points
+
+outlierTest(final)
+
+cutoff <- 4/((nrow(mtcars)-length(final$coefficients)-2)) 
+#influence point for final
+plot(final, which=4, cook.levels=cutoff)
+
+
+# Influence Plot 
+influencePlot(final, id.method="identify", main="Influence Plot",
+              sub="Circle size is proportial to Cook's Distance" )
+#no major issue of outliers and influential point.
+
+
+#we will analyze the predictor one more time of the final model 
+#to check whether any transfromation
+#will be helpful or not.
+
+hist(Senred$X1)
+hist(Senred$X2)
+hist(Senred$X3)
+hist(Senred$Y)
+#We are observing some skewness in Y(average length of stay). We will
+#perform a log transformation of Y in final model and will check what happens
+# with influential points,multicollinerity and other criterion based method.
+
+logY<-log(Y)
+hist(logY)
+final2<-lm(logY~X1+X2+X3)
+fin2sum<-summary(final2)
+
+#After log transformation of Y,the overall model and all the estimates
+#look significant with a 33% adjusted R-square.Final2 model is not showing 
+#any significant difference from Final model. We will look the outlier and 
+#influential point of final2 model now.
+
+
+#Outliers and influential points
+
+outlierTest(final2)
+
+cutoff <- 4/((nrow(mtcars)-length(final2$coefficients)-2)) 
+#influence point for final
+plot(final2, which=4, cook.levels=cutoff)
+
+# Influence Plot 
+influencePlot(final2, id.method="identify", main="Influence Plot",
+              sub="Circle size is proportial to Cook's Distance" )
+
+#From the cook distance we can see the influential point of final2 model(33,103)
+#has improved a little but not significant almost same like final model. we will
+#diagnose normality now.
+
+
+#Normality of residuals
+qqnorm(residuals(final),main="QQ plot")
+qqline(residuals(final))
+
+
+qqnorm(residuals(final2),main="QQ plot")
+qqline(residuals(final2))
+
+
+
+#the qq plot of final2(with log transformation) looks more normal than the 
+#qq plot of final model.So I will stick with final2 model untill I get
+#issue.
+
+
+#Formal test of normality model final2
+
+#null-normal
+#alternative-not normal
+
+shapiro.test(residuals(final2))
+#From the output, the p-value > 0.05 so we fail to reject the null and
+#conclude that the distribution  of the data are normally distributed
+#for model final2. 
+
+
+#contant variance of residual of final2
+
+plot(fitted(final2),residuals(final2))
+abline(h=0)
+#From the residuals plot, we see that the random noise are cluster above and
+#below except 2 points and most of them are symetry.So they look constant.
+
+plot(fitted(final2),abs(residuals(final2)))
+
+#Formal test of nonconstant variance
+
+#null-constant variance exists
+#alternavtive-Constant variance does not exist
+
+require(car)
+ncvTest(final2)
+
+#model.1- Here the p value of ncvtest is bigger than .05. So we fail to
+#reject the null and conclude that the variance
+# of Y is same(constant) regardless the values of 
+#predictors for model final2.
+
+
+#multicollinerity of final2
+vif(final2)
+
+#There is no multicollinerity problem of final2 model.
+
+
+#Formal Durbin-Watson test of autocorrelation of final2
+## null-there is no auto-Correlation among residuals,they are independent
+#alter-there is auto-correlation among residuals
+library(lmtest)
+dwtest(final)
+
+#Here p value is greater than .05 and DW is close to 2 so we fail to reject
+#the null and conclude that there is no autocorrelation for model 1.So We are 
+#good with auto-correlation.
+
+##7.Conclusion 
+
+#The assumptions of multiple linear regression are..
+#There must be a linear relationship between the outcome variable and 
+#the independent variables.Scatterplots can show whether there is a linear
+#or curvilinear relationship.
+
+#Multivariate Normality-Multiple regression assumes that the residuals are 
+#normally distributed.
+
+#No Multicollinearity-Multiple regression assumes that the independent variables
+#are not highly correlated with each other.  This assumption is tested using 
+#Variance Inflation Factor (VIF) values.
+
+#Homoscedasticity-This assumption states that the variance of error terms are
+#similar across the values of the independent variables.
+
+# We have met all of the multiple regression assumptions
+#and built a best regression model of y with variable selections method and come
+#up with a final model which is Final2 model.
+
+#so my final model is
+#Length of stay=5.652345+0.433611*Infectionrisk+0.014248*routine Xray+
+#        0.018656*available facilities and services
+
+##Here Intercept beta_0 5.652345
+#beta_1 0.433611
+#beta_2 0.014248
+#beta_3 0.018656
+
+#interpretation of estimates
+#the intercept in a multiple regression model is,the mean for the response Y is
+#5.652345 when all of the explanatory variables(X1,X2 & X3) take on the value 0.
+
+#beta_1= If infection risk changes by 1 unit,then the length of stay increases
+#by 0.433611 while keeping routine xray and available facilities held constant.
+
+#beta_2= If routine chest X-ray changes by 1 unit,then the length of stay increases
+#by 0.014248 while keeping infection risk and X3 held constant.
+
+#beta_3= If available facilities and services changes by 1 unit,then the length of
+#stay increases by 0.018656 while keeping X1 and X2 held constant.
+
+
+#My final2 model R_square is almost 35% which means almost 35% 
+#  of length of stay is explained by infection risk, routine chest xray and 
+#available facilities and services,which is not lot but it is better
+#than other alternatives.
+
+#Also We prefer low BIC and low cp. My model has lowest BIc And Lowest Cp than
+#than other alternatives
+
+
+```
+ 
